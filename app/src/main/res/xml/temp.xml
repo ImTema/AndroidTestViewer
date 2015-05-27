@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<testItself>
+	<globalSettings>
+		<name>testName</name>
+		<questionsToAsk>1</questionsToAsk>
+		<randomizeQuestions>1</randomizeQuestions>
+		<randomizeAnswers>1</randomizeAnswers>
+		<timeLimit>00:00:00</timeLimit>
+		<gradeSystem name="custom" count="3">
+			<Grade id="0">
+				<name>firstgradename</name>
+				<numberOfPoints>30</numberOfPoints>
+				<discription>discription for first EveEr</discription>
+			</Grade>
+			<Grade id="1">
+				<name>fine</name>
+				<numberOfPoints>20</numberOfPoints>
+				<discription>discription with fine mis takes</discription>
+			</Grade>
+			<Grade id="2">
+				<name>EXCELLENT</name>
+				<numberOfPoints>100</numberOfPoints>
+				<discription>ExCELLENT discription</discription>
+			</Grade>
+		</gradeSystem>
+	</globalSettings>
+	<questions count="3">
+		<Question id="1">
+			<questionType>2</questionType>
+			<questionText>1</questionText>
+			<explanation>1</explanation>
+			<image null="no">images/3840x2400_empty.jpg</image>
+			<answers count="2">
+				<Answer id="0">
+					<plainText>jnd 2</plainText>
+					<plainText2/>
+					<isCorrect>1</isCorrect>
+					<price>9</price>
+				</Answer>
+				<Answer id="1">
+					<plainText>jnd 1</plainText>
+					<plainText2/>
+					<isCorrect>0</isCorrect>
+					<price>0</price>
+				</Answer>
+			</answers>
+		</Question>
+		<Question id="2">
+			<questionType>3</questionType>
+			<questionText>jndnt</questionText>
+			<explanation>jdnjtnj</explanation>
+			<image null="yes"/>
+			<answers count="2">
+				<Answer id="0">
+					<plainText>aaa</plainText>
+					<plainText2>aaaa</plainText2>
+					<isCorrect>0</isCorrect>
+					<price>0</price>
+				</Answer>
+				<Answer id="1">
+					<plainText>aaa</plainText>
+					<plainText2>bbbb</plainText2>
+					<isCorrect>1</isCorrect>
+					<price>2</price>
+				</Answer>
+			</answers>
+		</Question>
+	</questions>
+</testItself>

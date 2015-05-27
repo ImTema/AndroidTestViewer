@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">TestViewer</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_test">TestActivity</string>
+    <string name="title_activity_result">ResultActivity</string>
+    <string name="title_activity_show_image">ShowImageActivity</string>
+</resources>
