@@ -34,7 +34,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Next"
+        android:text="Дальше"
         android:id="@+id/nextBtn"
         android:layout_alignParentEnd="false"
         android:layout_alignParentBottom="true"
@@ -43,17 +43,17 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Finish"
+        android:text="Закончить"
         android:id="@+id/finishBtn"
         android:visibility="invisible"
+        android:layout_alignParentEnd="false"
         android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@+id/nextBtn"
-        android:layout_alignStart="@+id/nextBtn" />
+        android:layout_alignParentRight="true" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="show tip"
+        android:text="Подсказка"
         android:id="@+id/tipBtn"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"

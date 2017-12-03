@@ -1,8 +1,12 @@
 package com.example.tema.testviewer;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.media.ThumbnailUtils;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -79,12 +83,19 @@ public class TestActivity extends ActionBarActivity {
     Runnable timerRunnable;
     private long timeLimit;
 
+    AlertDialog.Builder ad;
+    Context context;
+    private int key;
+    private List<Integer> shuffledList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
         result = 0;
+        context = TestActivity.this;
+        createAlertDialog();
         Intent intent = getIntent();
         sets = intent.getParcelableExtra(SETTINGS);
         path = intent.getStringExtra(PATH_TO_FILE);
@@ -92,7 +103,6 @@ public class TestActivity extends ActionBarActivity {
         setContentView(R.layout.activity_test);
         main_l = (LinearLayout) findViewById(R.id.contentLayout);
         nextButton = (Button) findViewById(R.id.nextBtn);
-        final List<Integer> shuffledList;
         tipBtn = (Button) findViewById(R.id.tipBtn);
         if (sets.isRandomizeQuestions()) {
             shuffledList = shuffle().subList(0, sets.getNumberOfQuestions());
@@ -102,7 +112,7 @@ public class TestActivity extends ActionBarActivity {
         countMaximumPoints(shuffledList);
         it = shuffledList.iterator();
         currentNo = 0;
-        int key = (int) it.next();
+        key = (int) it.next();
         Question q = questions.get(key);
         currentNo++;
         TestActivity.this.setTitle(currentNo + "/" + shuffledList.size());
@@ -111,14 +121,18 @@ public class TestActivity extends ActionBarActivity {
             nextButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    calculateResult();
-                    int key = (int) it.next();
-                    currentNo++;
-                    TestActivity.this.setTitle(currentNo + "/" + shuffledList.size());
-                    Question q = questions.get(key);
-                    showQuestion(q);
-                    if (!it.hasNext()) {
-                        finishTest();
+                    if (selectedAnswers.size() == 0)
+                        ad.show();
+                    else {
+                        calculateResult();
+                        key = (int) it.next();
+                        currentNo++;
+                        TestActivity.this.setTitle(currentNo + "/" + shuffledList.size());
+                        Question q = questions.get(key);
+                        showQuestion(q);
+                        if (!it.hasNext()) {
+                            finishTest();
+                        }
                     }
                 }
             });
@@ -152,6 +166,35 @@ public class TestActivity extends ActionBarActivity {
         timerHandler.postDelayed(timerRunnable, 0);
     }
 
+    private void createAlertDialog() {
+        String title = "Внимание";
+        String message = "Вы не выбрали ни одного ответа. Продолжить?";
+        String button1String = "Да";
+        String button2String = "Нет";
+        ad = new AlertDialog.Builder(context);
+        ad.setTitle(title);  // заголовок
+        ad.setMessage(message); // сообщение
+        ad.setPositiveButton(button1String, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int arg1) {
+                calculateResult();
+                key = (int) it.next();
+                currentNo++;
+                TestActivity.this.setTitle(currentNo + "/" + shuffledList.size());
+                Question q = questions.get(key);
+                showQuestion(q);
+                if (!it.hasNext()) {
+                    finishTest();
+                }
+            }
+        });
+        ad.setNegativeButton(button2String, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int arg1) {
+                //если нажато нет, то хз что делать
+
+            }
+        });
+    }
+
     private void goToResultScreen() {
         timerHandler.removeCallbacks(timerRunnable);
         calculateResult();
@@ -172,7 +215,11 @@ public class TestActivity extends ActionBarActivity {
         finishBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                goToResultScreen();
+                if (selectedAnswers.size() == 0)
+                    ad.show();
+                else {
+                    goToResultScreen();
+                }
             }
         });
     }
@@ -239,8 +286,7 @@ public class TestActivity extends ActionBarActivity {
     private void calculateResult() {
         Log.d(TAG, "CALCULATING RESULT");
         try {
-            if (selectedAnswers.size() == 0)
-                throw new NullPointerException();
+
             switch (type) {
                 case 0:
                     Log.d(TAG, "RADIO POLAR. size: " + selectedAnswers.size());
@@ -270,11 +316,11 @@ public class TestActivity extends ActionBarActivity {
                     что это не чекнуто*/
                     for (Answer a : shuffledAnswers) {
                         if (selectedAnswers.containsValue(a.getAnswerText())) {
-                            currentResult+=(a.isCorrect()?1:-1)*a.getPrice();
-                            Log.d(TAG, currentResult+"");
+                            currentResult += (a.isCorrect() ? 1 : -1) * a.getPrice();
+                            Log.d(TAG, currentResult + "");
                         } else {
-                            currentResult+=(a.isCorrect()?-1:1)*a.getPrice();
-                            Log.d(TAG, currentResult+"");
+                            currentResult += (a.isCorrect() ? -1 : 1) * a.getPrice();
+                            Log.d(TAG, currentResult + "");
                         }
                         Log.d(TAG, "checkbox clicked: text " + a.getAnswerText());
                         Log.d(TAG, "checkbox clicked: price " + a.getPrice());
@@ -282,17 +328,6 @@ public class TestActivity extends ActionBarActivity {
                         Log.d(TAG, "---------------------------");
                     }
                     break;
-
-
-//                    currentAnswer = shuffledAnswers.get(v.getId());
-//                    if (((CheckBox) v).isChecked()){
-//                        selectedAnswers.put(v.getId(), ((CheckBox) v).getText());
-//                        currentResult += (currentAnswer.isCorrect() ? 1 : -1) * currentAnswer.getPrice();
-//                    }
-//                    else{
-//                        currentResult += (currentAnswer.isCorrect() ? -1 : 1) * currentAnswer.getPrice();
-//                    }
-
                 case 3:
                     Log.d(TAG, "MATCHING. size: " + selectedAnswers.size());
                     iterator = selectedAnswers.keySet().iterator();
@@ -331,19 +366,18 @@ public class TestActivity extends ActionBarActivity {
                     break;
                 case 5:
                     Log.d(TAG, "SHORT count: " + selectedAnswers.size());
-                    if(answersToShow.contains(selectedAnswers.get(0))){
-                        currentAnswer = shuffledAnswers.get(answersToShow.indexOf(selectedAnswers.get(0))-1);
+                    if (answersToShow.contains(selectedAnswers.get(0))) {
+                        currentAnswer = shuffledAnswers.get(answersToShow.indexOf(selectedAnswers.get(0)) - 1);
                         currentResult = currentAnswer.getPrice();
                         Log.d(TAG, "correct SHORT");
-                    }
-                    else{
+                    } else {
                         Log.d(TAG, "incorrect");
                     }
                     Log.d(TAG, "------------------");
                     break;
             }
         } catch (NullPointerException e) {
-            Toast.makeText(getApplicationContext(), "Ничего не выбрано\nNothing chosen", Toast.LENGTH_SHORT).show();
+            createAlertDialog();
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
@@ -376,8 +410,8 @@ public class TestActivity extends ActionBarActivity {
             }
         });
         if (q.getFileName() != null) {
-//            String pathh = path + q.getFileName();
-            String pathh = "/mnt/shared/sharedVMFolder/" + q.getFileName();
+            String pathh = path + q.getFileName();
+//            String pathh = "/mnt/shared/sharedVMFolder/" + q.getFileName();
             Log.d(TAG, "got path: " + pathh);
             Bitmap image = BitmapFactory.decodeFile(pathh);
             ThumbnailUtils thumb = new ThumbnailUtils();
@@ -393,6 +427,9 @@ public class TestActivity extends ActionBarActivity {
         }
         TextView questionText = new TextView(this);
         questionText.setGravity(Gravity.CENTER);
+        questionText.setTextSize(20);
+        questionText.setPadding(0,0,0,10);
+        questionText.setTypeface(null, Typeface.BOLD);
         questionText.setText(q.getQuestionText());
         main_l.addView(questionText);
         HashMap<Integer, Answer> answers = (HashMap) q.getAnswers();
@@ -415,6 +452,7 @@ public class TestActivity extends ActionBarActivity {
                     RadioButton rb = new RadioButton(this);
 //                    currentAnswer = a;
                     rb.setText(a.getAnswerText());
+                    rb.setPadding(0, 0, 0, 5);
                     rb.setId(shuffledAnswers.indexOf(a));
                     rb.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -422,7 +460,7 @@ public class TestActivity extends ActionBarActivity {
 //                            currentResult = 0;
                             if (((RadioButton) v).isChecked()) {
                                 selectedAnswers.clear();
-                                selectedAnswers.put(v.getId(), ((RadioButton) v).getText()+"");
+                                selectedAnswers.put(v.getId(), ((RadioButton) v).getText() + "");
                             }
                         }
                     });
@@ -436,6 +474,7 @@ public class TestActivity extends ActionBarActivity {
 //                    Answer a = (Answer) pair.getValue();
                     RadioButton rb = new RadioButton(this);
                     rb.setText(a.getAnswerText());
+                    rb.setPadding(0, 0, 0, 5);
                     rb.setId(shuffledAnswers.indexOf(a));
                     rb.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -443,7 +482,7 @@ public class TestActivity extends ActionBarActivity {
 //                            currentResult=0;
                             if (((RadioButton) v).isChecked()) {
                                 selectedAnswers.clear();
-                                selectedAnswers.put(v.getId(), ((RadioButton) v).getText()+"");
+                                selectedAnswers.put(v.getId(), ((RadioButton) v).getText() + "");
                             }
                         }
                     });
@@ -458,13 +497,14 @@ public class TestActivity extends ActionBarActivity {
 //                    currentAnswer = a;
                     CheckBox cb = new CheckBox(this);
                     cb.setText(a.getAnswerText());
+                    cb.setPadding(0, 0, 0, 5);
                     cb.setId(shuffledAnswers.indexOf(a));
                     cb.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
 //                            currentResult = 0;
                             if (((CheckBox) v).isChecked()) {
-                                selectedAnswers.put(v.getId(), ((CheckBox) v).getText()+"");
+                                selectedAnswers.put(v.getId(), ((CheckBox) v).getText() + "");
                             } else {
                                 selectedAnswers.remove(v.getId());
                             }
@@ -487,15 +527,18 @@ public class TestActivity extends ActionBarActivity {
                     answer_l = new LinearLayout(this);
 
                     TextView tw = new TextView(this);
+                    tw.setPadding(0, 0, 0, 5);
                     tw.setGravity(Gravity.LEFT);
                     tw.setText(a.getAnswerText2());
 
                     TextView defis = new TextView(this);
+                    defis.setPadding(0, 0, 0, 5);
                     defis.setGravity(Gravity.CENTER);
                     defis.setText(" - ");
 
                     Spinner matchingSpinner = new Spinner(this);
                     selectedAnswers = new HashMap<>();
+                    matchingSpinner.setPadding(0, 0, 0, 5);
                     matchingSpinner.setAdapter(dataAdapter);
                     matchingSpinner.setSelection(0);
                     matchingSpinner.setId(shuffledAnswers.indexOf(a));
@@ -534,6 +577,7 @@ public class TestActivity extends ActionBarActivity {
                 orderedAnswersForOrderedId = new ArrayList<>(q.getAnswers().values());
                 for (Answer a : orderedAnswersForOrderedId) {
                     Spinner sequenceSpinner = new Spinner(this);
+                    sequenceSpinner.setPadding(0,0,0,5);
                     sequenceSpinner.setAdapter(dataAdapter);
                     sequenceSpinner.setId(orderedAnswersForOrderedId.indexOf(a));
                     sequenceSpinner.setSelection(0);
@@ -574,7 +618,7 @@ public class TestActivity extends ActionBarActivity {
 
                     public void onTextChanged(CharSequence s, int start,
                                               int before, int count) {
-                        Log.d(TAG, "PUTTING in SHORT - "+s);
+                        Log.d(TAG, "PUTTING in SHORT - " + s);
                         selectedAnswers.put(0, s + "");
                     }
                 });
@@ -587,6 +631,10 @@ public class TestActivity extends ActionBarActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        //do nothing
+    }
 
     @Override
     protected void onStart() {

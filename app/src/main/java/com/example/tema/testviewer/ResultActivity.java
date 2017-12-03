@@ -42,8 +42,8 @@ public class ResultActivity extends ActionBarActivity {
         result = intent.getIntExtra("result", 100500);
         int max_result = intent.getIntExtra("max_result", 100500);
         String gradeName = intent.getStringExtra(GRADESYSTEMNAME);
-        double avg = (result*100) / max_result;
-        resultView.setText("But you got " + avg + "% (" + result + "/" + max_result + " pts)");
+        double avg = (result * 100) / max_result;
+        resultView.setText("Вы набрали " + avg + "% (" + result + "/" + max_result + ")");
         resultView.setGravity(Gravity.CENTER);
         /*What if default*/
         try {
@@ -54,7 +54,7 @@ public class ResultActivity extends ActionBarActivity {
                 gradeNameView.setGravity(Gravity.CENTER);
                 explanationView.setText(descriptionText);
                 explanationView.setGravity(Gravity.CENTER);
-            }else{
+            } else {
                 throw new Exception();
             }
         } catch (Exception e) {
@@ -71,9 +71,14 @@ public class ResultActivity extends ActionBarActivity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        //do nothing
+    }
+
     private void initializeGrade(double avg) {
         HashMap<Integer, Grade> newGrades = new HashMap<>();
-        for(Grade g : grades.values()){
+        for (Grade g : grades.values()) {
             newGrades.put(g.getNumberOfPoints(), g);
         }
         ArrayList<Integer> sortedKey = new ArrayList<>(newGrades.keySet());
@@ -81,12 +86,10 @@ public class ResultActivity extends ActionBarActivity {
         sortedKey.add(101);
         int previous = 0;
         for (Integer i : sortedKey) {
-
-                if (avg >= i) {
-
-                    previous = i;
-                    continue;
-                }
+            if (avg >= i) {
+                previous = i;
+                continue;
+            }
 
             break;
         }

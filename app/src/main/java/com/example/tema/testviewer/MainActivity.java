@@ -116,7 +116,6 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
     public void parseFileEtc() {
         try {
             HashMap grades = new HashMap<>();
@@ -303,14 +302,13 @@ public class MainActivity extends ActionBarActivity {
         XmlPullParser parser = factory.newPullParser();
             //File file = new File(Environment.getExternalStorageDirectory()+ "/Download/exampleTest.xml");
 
-        File file = new File("/mnt/shared/sharedVMFolder/exampleTest.xml");
-//            File file = new File(path);
+//        File file = new File("/mnt/shared/sharedVMFolder/exampleTest.xml");
+            File file = new File(path);
             FileInputStream fis = new FileInputStream(file);
             parser.setInput(new InputStreamReader(fis));
         return parser;
         //return getResources().getXml(R.xml.temp);
     }
-
 
     public void OnOpenFileClick(View view) {
         OpenFileDialog fileDialog = new OpenFileDialog(this);
@@ -345,7 +343,7 @@ public class MainActivity extends ActionBarActivity {
                     // Get the path
                     try {
                         this.path = getPath(this, uri);
-                        CharSequence fileName = path.subSequence(path.lastIndexOf("/") + 1, path.length());
+                        CharSequence fileName = path.subSequence(path.lastIndexOf("@") + 1, path.length()-4);
                         ((TextView) findViewById(R.id.currentTest)).setText(fileName);
                         parseFileEtc();
 
